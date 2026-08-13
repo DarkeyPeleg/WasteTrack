@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LogoutButton } from "./logout-button";
+import { BrandLogo } from "./brand-logo";
 
 type NavItem = { href: string; label: string };
 
@@ -34,9 +35,7 @@ export function AppSidebar({ role, userName, userEmail }: Props) {
   return (
     <aside className="app-sidebar">
       <div className="app-sidebar-top">
-        <Link href={home} className="brand">
-          WasteTrack <span>Ghana</span>
-        </Link>
+        <BrandLogo href={home} variant="dark" />
         <p className="app-sidebar-role">{role === "ADMIN" ? "Administrator" : "Resident"}</p>
       </div>
 

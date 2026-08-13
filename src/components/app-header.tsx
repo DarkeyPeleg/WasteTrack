@@ -1,12 +1,11 @@
 import Link from "next/link";
+import { BrandLogo } from "./brand-logo";
 
 export async function AppHeader() {
   return (
     <header className="site-header">
       <div className="container header-inner">
-        <Link href="/" className="brand">
-          WasteTrack <span>Ghana</span>
-        </Link>
+        <BrandLogo href="/" />
         <nav className="nav" aria-label="Primary">
           <Link href="/#how-it-works" className="nav-link-away">
             How it works

@@ -1,13 +1,12 @@
 import Link from "next/link";
 import { AuthForm } from "@/components/auth-form";
+import { BrandLogo } from "@/components/brand-logo";
 
 export default function LoginPage() {
   return (
     <div className="auth-simple">
       <div className="auth-simple-card">
-        <Link href="/" className="auth-simple-brand">
-          WasteTrack <span>Ghana</span>
-        </Link>
+        <BrandLogo href="/" />
         <h1>Log in</h1>
         <p className="auth-simple-sub">
           Residents and administrators use the same login.

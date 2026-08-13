@@ -62,6 +62,42 @@ a {
   width: 100%;
 }
 
+.brand-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  text-decoration: none;
+}
+
+.brand-mark {
+  width: 36px;
+  height: 36px;
+  border-radius: 0.45rem;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.brand-word {
+  font-family: var(--font-display), serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.brand-logo-light .brand-word span,
+.auth-simple-card .brand-word span {
+  color: var(--brand);
+}
+
+.brand-logo-dark .brand-word {
+  color: #fff;
+}
+
+.brand-logo-dark .brand-word span {
+  color: #fdba74;
+}
+
 .brand {
   font-family: var(--font-display), serif;
   font-size: 1.3rem;
@@ -301,6 +337,14 @@ a {
   font-weight: 700;
   letter-spacing: -0.02em;
   color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.landing-brand .brand-mark {
+  width: 48px;
+  height: 48px;
 }
 
 .landing-hero h1 {
@@ -934,16 +978,8 @@ th {
   box-shadow: 0 8px 28px rgba(22, 24, 29, 0.08);
 }
 
-.auth-simple-brand {
-  display: inline-block;
+.auth-simple-card .brand-logo {
   margin-bottom: 1.5rem;
-  font-family: var(--font-display), serif;
-  font-size: 1.15rem;
-  font-weight: 700;
-}
-
-.auth-simple-brand span {
-  color: var(--brand);
 }
 
 .auth-simple-card h1 {

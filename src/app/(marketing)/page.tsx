@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
 
@@ -17,7 +18,10 @@ export default async function HomePage() {
           aria-label="Waste collection truck on a residential street"
         />
         <div className="landing-hero-content container">
-          <p className="landing-brand reveal">WasteTrack Ghana</p>
+          <p className="landing-brand reveal">
+            <Image src="/logo.png" alt="" width={48} height={48} className="brand-mark" />
+            WasteTrack Ghana
+          </p>
           <h1 className="reveal reveal-delay-1">Request collection. Track every job.</h1>
           <p className="landing-lead reveal reveal-delay-2">
             A simple online system for residents to submit household waste requests and for staff

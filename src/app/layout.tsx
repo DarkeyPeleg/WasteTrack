@@ -15,6 +15,10 @@ const serif = Source_Serif_4({
 export const metadata: Metadata = {
   title: "WasteTrack Ghana",
   description: "Request and track household waste collection online.",
+  icons: {
+    icon: "/logo.png",
+    apple: "/apple-icon.png",
+  },
 };
 
 export default function RootLayout({
