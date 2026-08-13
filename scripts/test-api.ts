@@ -166,7 +166,23 @@ async function main() {
     assert(found?.collector?.name, "resident should see collector details");
   }
 
-  console.log("9) Stats endpoint");
+  console.log("9) Update profile");
+  {
+    const { res, data } = await api(resident, "/api/profile", {
+      method: "PATCH",
+      body: JSON.stringify({
+        name: "Updated Resident",
+        email,
+      }),
+    });
+    assert(res.status === 200, `profile update expected 200 got ${res.status}: ${JSON.stringify(data)}`);
+    assert(
+      (data as { user: { name: string } }).user.name === "Updated Resident",
+      "name should update",
+    );
+  }
+
+  console.log("10) Stats endpoint");
   {
     const { res, data } = await api(admin, "/api/admin/stats");
     assert(res.status === 200, `stats expected 200 got ${res.status}`);

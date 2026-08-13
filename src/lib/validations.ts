@@ -46,6 +46,12 @@ export const createRequestSchema = z.object({
   }
 });
 
+export const updateProfileSchema = z.object({
+  name: z.string().trim().min(2, "Name must be at least 2 characters"),
+  email: z.string().trim().email("Enter a valid email"),
+  password: z.string().optional(),
+});
+
 export const adminUpdateSchema = z.object({
   collectorId: z.string().trim().min(1, "Select a collector").optional(),
   status: z

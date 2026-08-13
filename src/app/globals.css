@@ -189,6 +189,7 @@ a {
   display: grid;
   gap: 0.15rem;
   padding: 0 0.5rem;
+  color: inherit;
 }
 
 .app-sidebar-user strong {

@@ -16,11 +16,13 @@ const residentNav: NavItem[] = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/requests", label: "My requests" },
   { href: "/requests/new", label: "New request" },
+  { href: "/profile", label: "Profile" },
 ];
 
 const adminNav: NavItem[] = [
   { href: "/admin", label: "Dashboard" },
   { href: "/admin/requests", label: "All requests" },
+  { href: "/profile", label: "Profile" },
 ];
 
 export function AppSidebar({ role, userName, userEmail }: Props) {
@@ -39,7 +41,10 @@ export function AppSidebar({ role, userName, userEmail }: Props) {
 
       <nav className="app-sidebar-nav" aria-label="Dashboard">
         {items.map((item) => {
-          const active = pathname === item.href;
+          const active =
+            item.href === "/profile"
+              ? pathname.startsWith("/profile")
+              : pathname === item.href;
           return (
             <Link
               key={item.href}
@@ -53,10 +58,10 @@ export function AppSidebar({ role, userName, userEmail }: Props) {
       </nav>
 
       <div className="app-sidebar-footer">
-        <div className="app-sidebar-user">
+        <Link href="/profile" className="app-sidebar-user">
           <strong>{userName}</strong>
           <span>{userEmail}</span>
-        </div>
+        </Link>
         <LogoutButton />
       </div>
     </aside>
