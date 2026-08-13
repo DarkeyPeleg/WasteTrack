@@ -1,94 +1,61 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+
 type Props = {
   id: string;
   status: string;
-  collectorName: string | null;
 };
 
-export function AdminRequestActions({ id, status, collectorName }: Props) {
+export function AdminRequestActions({ id, status }: Props) {
   const router = useRouter();
   const [error, setError] = useState("");
-  const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const canAssign = status === "PENDING" || status === "ASSIGNED";
+  const canCancel = status !== "COLLECTED" && status !== "CANCELLED";
 
-  async function patch(body: Record<string, string>) {
+  async function cancel() {
     setLoading(true);
     setError("");
-    setMessage("");
     const res = await fetch(`/api/admin/requests/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
+      body: JSON.stringify({ status: "CANCELLED" }),
     });
     const data = await res.json();
     setLoading(false);
     if (!res.ok) {
-      setError(data.error ?? "Update failed");
+      setError(data.error ?? "Could not cancel");
       return;
     }
-    setMessage("Updated");
     router.refresh();
-  }
-
-  async function onAssign(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const form = new FormData(event.currentTarget);
-    await patch({ collectorName: String(form.get("collectorName") ?? "") });
   }
 
   return (
     <div className="action-stack">
-      {(status === "PENDING" || status === "ASSIGNED") && (
-        <form className="inline-form" onSubmit={onAssign}>
-          <input
-            name="collectorName"
-            placeholder="Collector name"
-            defaultValue={collectorName ?? ""}
-            required
-          />
-          <button className="btn btn-primary btn-sm" type="submit" disabled={loading}>
-            {status === "PENDING" ? "Assign collector" : "Update collector"}
-          </button>
-        </form>
-      )}
-
       <div className="btn-row">
-        {status === "ASSIGNED" && (
-          <button
-            type="button"
-            className="btn btn-secondary btn-sm"
-            disabled={loading}
-            onClick={() => patch({ status: "IN_PROGRESS" })}
-          >
-            Start progress
-          </button>
+        {canAssign && (
+          <Link href={`/admin/requests/${id}?action=assign`} className="btn btn-primary btn-sm">
+            Assign
+          </Link>
         )}
-        {status === "IN_PROGRESS" && (
-          <button
-            type="button"
-            className="btn btn-secondary btn-sm"
-            disabled={loading}
-            onClick={() => patch({ status: "COLLECTED" })}
-          >
-            Mark collected
-          </button>
-        )}
-        {status !== "COLLECTED" && status !== "CANCELLED" && (
+        {canCancel && (
           <button
             type="button"
             className="btn btn-danger btn-sm"
             disabled={loading}
-            onClick={() => patch({ status: "CANCELLED" })}
+            onClick={cancel}
           >
             Cancel
           </button>
         )}
+        <Link href={`/admin/requests/${id}`} className="btn btn-secondary btn-sm">
+          View
+        </Link>
       </div>
       {error && <p className="form-error">{error}</p>}
-      {message && <p className="form-ok">{message}</p>}
     </div>
   );
 }

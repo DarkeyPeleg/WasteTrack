@@ -18,17 +18,29 @@ model User {
   requests     CollectionRequest[]
 }
 
+model Collector {
+  id        String              @id @default(cuid())
+  name      String
+  phone     String
+  area      String
+  active    Boolean             @default(true)
+  createdAt DateTime            @default(now())
+  requests  CollectionRequest[]
+}
+
 model CollectionRequest {
-  id            String   @id @default(cuid())
+  id            String     @id @default(cuid())
   residentId    String
-  resident      User     @relation(fields: [residentId], references: [id], onDelete: Cascade)
+  resident      User       @relation(fields: [residentId], references: [id], onDelete: Cascade)
   address       String
   wasteType     String
   preferredDate DateTime
   description   String
   /// PENDING | ASSIGNED | IN_PROGRESS | COLLECTED | CANCELLED
-  status        String   @default("PENDING")
+  status        String     @default("PENDING")
+  collectorId   String?
+  collector     Collector? @relation(fields: [collectorId], references: [id], onDelete: SetNull)
   collectorName String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
 }

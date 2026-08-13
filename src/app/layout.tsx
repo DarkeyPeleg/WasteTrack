@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Space_Grotesk, Source_Serif_4 } from "next/font/google";
-import { AppHeader } from "@/components/app-header";
 import "./globals.css";
 
 const sans = Space_Grotesk({
@@ -18,13 +17,14 @@ export const metadata: Metadata = {
   description: "Request and track household waste collection online.",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
     <html lang="en" className={`${sans.variable} ${serif.variable} h-full`}>
-      <body className="min-h-full flex flex-col antialiased">
-        <AppHeader />
-        <main className="main">{children}</main>
-      </body>
+      <body className="min-h-full antialiased">{children}</body>
     </html>
   );
 }

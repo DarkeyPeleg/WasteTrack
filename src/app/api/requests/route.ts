@@ -10,6 +10,7 @@ export async function GET() {
 
   const requests = await prisma.collectionRequest.findMany({
     where: { residentId: auth.session!.id },
+    include: { collector: true },
     orderBy: { createdAt: "desc" },
   });
 

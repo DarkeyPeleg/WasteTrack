@@ -6,6 +6,27 @@ import { canTransition } from "@/lib/status";
 
 type Params = { params: Promise<{ id: string }> };
 
+const requestInclude = {
+  resident: { select: { id: true, name: true, email: true } },
+  collector: true,
+} as const;
+
+export async function GET(_request: NextRequest, { params }: Params) {
+  const session = await getSession();
+  const auth = requireAdmin(session);
+  if ("error" in auth && auth.error) return auth.error;
+
+  const { id } = await params;
+  const existing = await prisma.collectionRequest.findUnique({
+    where: { id },
+    include: requestInclude,
+  });
+  if (!existing) {
+    return NextResponse.json({ error: "Request not found" }, { status: 404 });
+  }
+  return NextResponse.json({ request: existing });
+}
+
 export async function PATCH(request: NextRequest, { params }: Params) {
   const session = await getSession();
   const auth = requireAdmin(session);
@@ -26,9 +47,9 @@ export async function PATCH(request: NextRequest, { params }: Params) {
     );
   }
 
-  const { collectorName, status } = parsed.data;
+  const { collectorId, status } = parsed.data;
 
-  if (collectorName) {
+  if (collectorId) {
     if (existing.status !== "PENDING" && existing.status !== "ASSIGNED") {
       return NextResponse.json(
         { error: "Collector can only be set while pending or assigned" },
@@ -36,13 +57,20 @@ export async function PATCH(request: NextRequest, { params }: Params) {
       );
     }
 
+    const collector = await prisma.collector.findFirst({
+      where: { id: collectorId, active: true },
+    });
+    if (!collector) {
+      return NextResponse.json({ error: "Collector not found" }, { status: 400 });
+    }
+
     const updated = await prisma.collectionRequest.update({
       where: { id },
       data: {
-        collectorName,
+        collectorId: collector.id,
         status: existing.status === "PENDING" ? "ASSIGNED" : existing.status,
       },
-      include: { resident: { select: { id: true, name: true, email: true } } },
+      include: requestInclude,
     });
     return NextResponse.json({ request: updated });
   }
@@ -54,7 +82,7 @@ export async function PATCH(request: NextRequest, { params }: Params) {
         { status: 400 },
       );
     }
-    if (status === "ASSIGNED" && !existing.collectorName) {
+    if (status === "ASSIGNED" && !existing.collectorId) {
       return NextResponse.json(
         { error: "Assign a collector before setting status to Assigned" },
         { status: 400 },
@@ -64,7 +92,7 @@ export async function PATCH(request: NextRequest, { params }: Params) {
     const updated = await prisma.collectionRequest.update({
       where: { id },
       data: { status },
-      include: { resident: { select: { id: true, name: true, email: true } } },
+      include: requestInclude,
     });
     return NextResponse.json({ request: updated });
   }

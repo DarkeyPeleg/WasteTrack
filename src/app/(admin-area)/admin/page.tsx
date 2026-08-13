@@ -32,11 +32,13 @@ export default async function AdminDashboardPage() {
   const recent = await prisma.collectionRequest.findMany({
     take: 8,
     orderBy: { createdAt: "desc" },
-    include: { resident: { select: { name: true, email: true } } },
+    include: {
+      resident: { select: { name: true, email: true } },
+      collector: true,
+    },
   });
 
   return (
-    <div className="container">
     <section>
       <h1 className="page-title">Admin dashboard</h1>
       <p className="page-sub">Outstanding, assigned, and completed collection jobs.</p>
@@ -88,7 +90,7 @@ export default async function AdminDashboardPage() {
                 <tr>
                   <th>Resident</th>
                   <th>Address</th>
-                  <th>Type</th>
+                  <th>Collector</th>
                   <th>Status</th>
                 </tr>
               </thead>
@@ -100,7 +102,7 @@ export default async function AdminDashboardPage() {
                       <div className="muted">{request.resident.email}</div>
                     </td>
                     <td>{request.address}</td>
-                    <td>{request.wasteType}</td>
+                    <td>{request.collector?.name ?? "Unassigned"}</td>
                     <td>
                       <StatusBadge status={request.status} />
                     </td>
@@ -112,6 +114,5 @@ export default async function AdminDashboardPage() {
         )}
       </div>
     </section>
-    </div>
   );
 }

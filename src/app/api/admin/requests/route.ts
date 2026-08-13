@@ -18,6 +18,7 @@ export async function GET(request: NextRequest) {
     where,
     include: {
       resident: { select: { id: true, name: true, email: true } },
+      collector: true,
     },
     orderBy: { createdAt: "desc" },
   });

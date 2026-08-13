@@ -11,6 +11,7 @@ export default async function ResidentDashboardPage() {
 
   const requests = await prisma.collectionRequest.findMany({
     where: { residentId: session.id },
+    include: { collector: true },
     orderBy: { createdAt: "desc" },
   });
 
@@ -22,7 +23,6 @@ export default async function ResidentDashboardPage() {
   };
 
   return (
-    <div className="container">
     <section>
       <h1 className="page-title">Hello, {session.name}</h1>
       <p className="page-sub">Your waste-collection request history at a glance.</p>
@@ -66,8 +66,9 @@ export default async function ResidentDashboardPage() {
                 <tr>
                   <th>Address</th>
                   <th>Type</th>
-                  <th>Preferred</th>
+                  <th>Collector</th>
                   <th>Status</th>
+                  <th></th>
                 </tr>
               </thead>
               <tbody>
@@ -75,9 +76,14 @@ export default async function ResidentDashboardPage() {
                   <tr key={request.id}>
                     <td>{request.address}</td>
                     <td>{request.wasteType}</td>
-                    <td>{request.preferredDate.toISOString().slice(0, 10)}</td>
+                    <td>{request.collector?.name ?? "Not assigned"}</td>
                     <td>
                       <StatusBadge status={request.status} />
+                    </td>
+                    <td>
+                      <Link href={`/requests/${request.id}`} className="btn btn-secondary btn-sm">
+                        View
+                      </Link>
                     </td>
                   </tr>
                 ))}
@@ -87,6 +93,5 @@ export default async function ResidentDashboardPage() {
         )}
       </div>
     </section>
-    </div>
   );
 }

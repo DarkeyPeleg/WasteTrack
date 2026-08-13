@@ -117,11 +117,19 @@ async function main() {
     assert(res.status === 200, `admin login expected 200 got ${res.status}: ${JSON.stringify(data)}`);
   }
 
-  console.log("6) Assign collector");
+  console.log("6) Assign collector from system list");
+  let collectorId = "";
+  {
+    const { res, data } = await api(admin, "/api/admin/collectors");
+    assert(res.status === 200, `collectors expected 200 got ${res.status}`);
+    const collectors = (data as { collectors: Array<{ id: string }> }).collectors;
+    assert(collectors.length > 0, "expected seeded collectors");
+    collectorId = collectors[0].id;
+  }
   {
     const { res, data } = await api(admin, `/api/admin/requests/${requestId}`, {
       method: "PATCH",
-      body: JSON.stringify({ collectorName: "Kwame Boateng" }),
+      body: JSON.stringify({ collectorId }),
     });
     assert(res.status === 200, `assign expected 200 got ${res.status}: ${JSON.stringify(data)}`);
     assert(
@@ -148,7 +156,17 @@ async function main() {
     );
   }
 
-  console.log("8) Stats endpoint");
+  console.log("8) Resident can see assigned collector");
+  {
+    const { res, data } = await api(resident, "/api/requests");
+    assert(res.status === 200, `resident list expected 200 got ${res.status}`);
+    const found = (data as { requests: Array<{ id: string; collector: { name: string } | null }> }).requests.find(
+      (item) => item.id === requestId,
+    );
+    assert(found?.collector?.name, "resident should see collector details");
+  }
+
+  console.log("9) Stats endpoint");
   {
     const { res, data } = await api(admin, "/api/admin/stats");
     assert(res.status === 200, `stats expected 200 got ${res.status}`);

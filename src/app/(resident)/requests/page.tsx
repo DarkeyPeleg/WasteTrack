@@ -11,11 +11,11 @@ export default async function RequestsPage() {
 
   const requests = await prisma.collectionRequest.findMany({
     where: { residentId: session.id },
+    include: { collector: true },
     orderBy: { createdAt: "desc" },
   });
 
   return (
-    <div className="container">
     <section>
       <h1 className="page-title">My requests</h1>
       <p className="page-sub">Track the status of every collection request you have submitted.</p>
@@ -37,7 +37,7 @@ export default async function RequestsPage() {
                 <th>Preferred date</th>
                 <th>Collector</th>
                 <th>Status</th>
-                <th>Description</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
@@ -46,11 +46,24 @@ export default async function RequestsPage() {
                   <td>{request.address}</td>
                   <td>{request.wasteType}</td>
                   <td>{request.preferredDate.toISOString().slice(0, 10)}</td>
-                  <td>{request.collectorName ?? "—"}</td>
+                  <td>
+                    {request.collector ? (
+                      <>
+                        <div>{request.collector.name}</div>
+                        <div className="muted">{request.collector.phone}</div>
+                      </>
+                    ) : (
+                      <span className="muted">Not assigned</span>
+                    )}
+                  </td>
                   <td>
                     <StatusBadge status={request.status} />
                   </td>
-                  <td>{request.description}</td>
+                  <td>
+                    <Link href={`/requests/${request.id}`} className="btn btn-secondary btn-sm">
+                      View
+                    </Link>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -58,6 +71,5 @@ export default async function RequestsPage() {
         </div>
       )}
     </section>
-    </div>
   );
 }

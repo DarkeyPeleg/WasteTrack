@@ -47,7 +47,7 @@ export const createRequestSchema = z.object({
 });
 
 export const adminUpdateSchema = z.object({
-  collectorName: z.string().trim().min(2, "Collector name is required").optional(),
+  collectorId: z.string().trim().min(1, "Select a collector").optional(),
   status: z
     .enum(["PENDING", "ASSIGNED", "IN_PROGRESS", "COLLECTED", "CANCELLED"])
     .optional(),

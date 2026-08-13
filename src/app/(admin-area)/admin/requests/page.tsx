@@ -33,12 +33,14 @@ export default async function AdminRequestsPage({ searchParams }: Props) {
 
   const requests = await prisma.collectionRequest.findMany({
     where,
-    include: { resident: { select: { name: true, email: true } } },
+    include: {
+      resident: { select: { name: true, email: true } },
+      collector: true,
+    },
     orderBy: { createdAt: "desc" },
   });
 
   return (
-    <div className="container">
     <section>
       <h1 className="page-title">All collection requests</h1>
       <p className="page-sub">Assign collectors and progress each job through its lifecycle.</p>
@@ -63,7 +65,8 @@ export default async function AdminRequestsPage({ searchParams }: Props) {
             <thead>
               <tr>
                 <th>Resident</th>
-                <th>Details</th>
+                <th>Address</th>
+                <th>Collector</th>
                 <th>Status</th>
                 <th>Actions</th>
               </tr>
@@ -80,18 +83,22 @@ export default async function AdminRequestsPage({ searchParams }: Props) {
                     <div className="muted">
                       {request.wasteType} · {request.preferredDate.toISOString().slice(0, 10)}
                     </div>
-                    <div>{request.description}</div>
-                    <div className="muted">Collector: {request.collectorName ?? "Unassigned"}</div>
+                  </td>
+                  <td>
+                    {request.collector ? (
+                      <>
+                        <div>{request.collector.name}</div>
+                        <div className="muted">{request.collector.phone}</div>
+                      </>
+                    ) : (
+                      <span className="muted">Unassigned</span>
+                    )}
                   </td>
                   <td>
                     <StatusBadge status={request.status} />
                   </td>
                   <td>
-                    <AdminRequestActions
-                      id={request.id}
-                      status={request.status}
-                      collectorName={request.collectorName}
-                    />
+                    <AdminRequestActions id={request.id} status={request.status} />
                   </td>
                 </tr>
               ))}
@@ -100,6 +107,5 @@ export default async function AdminRequestsPage({ searchParams }: Props) {
         </div>
       )}
     </section>
-    </div>
   );
 }

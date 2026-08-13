@@ -12,6 +12,16 @@ export default function LoginPage() {
         <p className="auth-simple-sub">
           Residents and administrators use the same login.
         </p>
+
+        <div className="demo-creds" aria-label="Demo login credentials">
+          <p>
+            <strong>Admin:</strong> admin@wastetrack.gh · Password123!
+          </p>
+          <p>
+            <strong>Resident:</strong> resident@wastetrack.gh · Password123!
+          </p>
+        </div>
+
         <AuthForm mode="login" />
         <p className="auth-switch">
           New resident?{" "}

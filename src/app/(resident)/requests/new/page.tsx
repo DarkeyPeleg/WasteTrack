@@ -8,12 +8,10 @@ export default async function NewRequestPage() {
   if (session.role !== "RESIDENT") redirect("/admin");
 
   return (
-    <div className="container">
-      <section>
+    <section>
         <h1 className="page-title">New collection request</h1>
         <p className="page-sub">Tell collectors where to come, what to collect, and when you prefer.</p>
         <NewRequestForm />
       </section>
-    </div>
   );
 }
