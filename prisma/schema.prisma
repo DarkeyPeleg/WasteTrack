@@ -1,0 +1,34 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String              @id @default(cuid())
+  name         String
+  email        String              @unique
+  passwordHash String
+  /// RESIDENT | ADMIN
+  role         String              @default("RESIDENT")
+  createdAt    DateTime            @default(now())
+  requests     CollectionRequest[]
+}
+
+model CollectionRequest {
+  id            String   @id @default(cuid())
+  residentId    String
+  resident      User     @relation(fields: [residentId], references: [id], onDelete: Cascade)
+  address       String
+  wasteType     String
+  preferredDate DateTime
+  description   String
+  /// PENDING | ASSIGNED | IN_PROGRESS | COLLECTED | CANCELLED
+  status        String   @default("PENDING")
+  collectorName String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}

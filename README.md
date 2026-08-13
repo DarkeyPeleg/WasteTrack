@@ -1,36 +1,64 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# WasteTrack Ghana
 
-## Getting Started
+Web app for household waste-collection requests and tracking in Ghanaian residential communities.
 
-First, run the development server:
+Residents register, submit collection requests, and track status online. Administrators view all requests, assign collectors, and progress jobs through **Pending → Assigned → In Progress → Collected** (or Cancelled).
+
+## Stack
+
+- Next.js (App Router) + TypeScript + Tailwind CSS
+- Prisma + SQLite (local / exam MVP database)
+- JWT auth in httpOnly cookies (`jose`) + bcrypt password hashes
+- Zod validation
+- Deploy target: Vercel
+
+## Local setup
 
 ```bash
+npm install
+npx prisma migrate dev
+npx prisma db seed
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Environment
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Variable | Purpose |
+|---|---|
+| `DATABASE_URL` | SQLite file, e.g. `file:./dev.db` |
+| `JWT_SECRET` | Secret used to sign session tokens |
 
-## Learn More
+See `.env.example`.
 
-To learn more about Next.js, take a look at the following resources:
+## Test credentials (seeded)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| Role | Email | Password |
+|---|---|---|
+| Administrator | `admin@wastetrack.gh` | `Password123!` |
+| Resident | `resident@wastetrack.gh` | `Password123!` |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Scripts
 
-## Deploy on Vercel
+| Command | Description |
+|---|---|
+| `npm run dev` | Start development server |
+| `npm run build` | Generate Prisma client + production build |
+| `npm run test:api` | API smoke tests (dev server must be running) |
+| `npm run db:seed` | Re-seed admin/resident accounts |
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Requirements covered
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **Must:** FR-01–FR-09 (register/login, RBAC, submit/validate/track requests, admin assign & status)
+- **Should:** FR-10–FR-12 (resident dashboard, admin filter, status stats)
+- **Security NFRs:** hashed passwords, auth redirects, server-side admin checks
+
+## Project docs
+
+- [PLAN.md](./PLAN.md) — implementation plan
+- [design.md](./design.md) — software design
+
+## Acknowledgements (NFR-08)
+
+Next.js, React, TypeScript, Tailwind CSS, Prisma, SQLite, Zod, bcryptjs, jose, Vercel.
