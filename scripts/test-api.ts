@@ -143,6 +143,20 @@ async function main() {
     assert(res.status === 200, `admin login expected 200 got ${res.status}: ${JSON.stringify(data)}`);
   }
 
+  console.log("5b) Admin can add a collector");
+  {
+    const stamp = Date.now();
+    const { res, data } = await api(admin, "/api/admin/collectors", {
+      method: "POST",
+      body: JSON.stringify({
+        name: `Test Collector ${stamp}`,
+        phone: "024 000 1111",
+        area: "Kaneshie",
+      }),
+    });
+    assert(res.status === 201, `add collector expected 201 got ${res.status}: ${JSON.stringify(data)}`);
+  }
+
   console.log("6) Assign collector from system list");
   let collectorId = "";
   {

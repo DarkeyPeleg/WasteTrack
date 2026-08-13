@@ -52,6 +52,12 @@ export const updateProfileSchema = z.object({
   password: z.string().optional(),
 });
 
+export const collectorSchema = z.object({
+  name: z.string().trim().min(2, "Collector name is required"),
+  phone: z.string().trim().min(8, "Enter a valid phone number"),
+  area: z.string().trim().min(2, "Service area is required"),
+});
+
 export const adminUpdateSchema = z.object({
   collectorId: z.string().trim().min(1, "Select a collector").optional(),
   status: z

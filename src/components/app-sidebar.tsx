@@ -22,6 +22,7 @@ const residentNav: NavItem[] = [
 const adminNav: NavItem[] = [
   { href: "/admin", label: "Dashboard" },
   { href: "/admin/requests", label: "All requests" },
+  { href: "/admin/collectors", label: "Collectors" },
   { href: "/profile", label: "Profile" },
 ];
 
@@ -44,7 +45,9 @@ export function AppSidebar({ role, userName, userEmail }: Props) {
           const active =
             item.href === "/profile"
               ? pathname.startsWith("/profile")
-              : pathname === item.href;
+              : item.href === "/admin/collectors"
+                ? pathname.startsWith("/admin/collectors")
+                : pathname === item.href;
           return (
             <Link
               key={item.href}
