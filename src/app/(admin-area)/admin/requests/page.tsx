@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AdminRequestActions } from "@/components/admin-request-actions";
+import { Pagination } from "@/components/pagination";
 import { StatusBadge } from "@/components/status-badge";
 import { getSession } from "@/lib/auth";
+import { PAGE_SIZE, paginationSkip, parsePage, totalPages } from "@/lib/pagination";
 import { prisma } from "@/lib/prisma";
 import { isRequestStatus } from "@/lib/types";
 
@@ -16,8 +18,16 @@ const filters: Array<{ label: string; value: string }> = [
 ];
 
 type Props = {
-  searchParams: Promise<{ status?: string }>;
+  searchParams: Promise<{ status?: string; page?: string }>;
 };
+
+function requestsHref(status: string, page: number) {
+  const params = new URLSearchParams();
+  if (status !== "ALL") params.set("status", status);
+  if (page > 1) params.set("page", String(page));
+  const query = params.toString();
+  return query ? `/admin/requests?${query}` : "/admin/requests";
+}
 
 export default async function AdminRequestsPage({ searchParams }: Props) {
   const session = await getSession();
@@ -31,6 +41,10 @@ export default async function AdminRequestsPage({ searchParams }: Props) {
       ? { status }
       : {};
 
+  const total = await prisma.collectionRequest.count({ where });
+  const pages = totalPages(total);
+  const page = Math.min(parsePage(params.page), pages);
+
   const requests = await prisma.collectionRequest.findMany({
     where,
     include: {
@@ -38,6 +52,8 @@ export default async function AdminRequestsPage({ searchParams }: Props) {
       collector: true,
     },
     orderBy: { createdAt: "desc" },
+    skip: paginationSkip(page),
+    take: PAGE_SIZE,
   });
 
   return (
@@ -49,7 +65,7 @@ export default async function AdminRequestsPage({ searchParams }: Props) {
         {filters.map((filter) => (
           <Link
             key={filter.value}
-            href={filter.value === "ALL" ? "/admin/requests" : `/admin/requests?status=${filter.value}`}
+            href={requestsHref(filter.value, 1)}
             className={status === filter.value ? "active" : undefined}
           >
             {filter.label}
@@ -57,54 +73,62 @@ export default async function AdminRequestsPage({ searchParams }: Props) {
         ))}
       </div>
 
-      {requests.length === 0 ? (
+      {total === 0 ? (
         <div className="panel empty">No requests match this filter.</div>
       ) : (
-        <div className="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Resident</th>
-                <th>Address</th>
-                <th>Collector</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {requests.map((request) => (
-                <tr key={request.id}>
-                  <td>
-                    {request.resident.name}
-                    <div className="muted">{request.resident.email}</div>
-                  </td>
-                  <td>
-                    <div>{request.address}</div>
-                    <div className="muted">
-                      {request.wasteType} · {request.preferredDate.toISOString().slice(0, 10)}
-                    </div>
-                  </td>
-                  <td>
-                    {request.collector ? (
-                      <>
-                        <div>{request.collector.name}</div>
-                        <div className="muted">{request.collector.phone}</div>
-                      </>
-                    ) : (
-                      <span className="muted">Unassigned</span>
-                    )}
-                  </td>
-                  <td>
-                    <StatusBadge status={request.status} />
-                  </td>
-                  <td>
-                    <AdminRequestActions id={request.id} status={request.status} />
-                  </td>
+        <>
+          <div className="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Resident</th>
+                  <th>Address</th>
+                  <th>Collector</th>
+                  <th>Status</th>
+                  <th>Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {requests.map((request) => (
+                  <tr key={request.id}>
+                    <td>
+                      {request.resident.name}
+                      <div className="muted">{request.resident.email}</div>
+                    </td>
+                    <td>
+                      <div>{request.address}</div>
+                      <div className="muted">
+                        {request.wasteType} · {request.preferredDate.toISOString().slice(0, 10)}
+                      </div>
+                    </td>
+                    <td>
+                      {request.collector ? (
+                        <>
+                          <div>{request.collector.name}</div>
+                          <div className="muted">{request.collector.phone}</div>
+                        </>
+                      ) : (
+                        <span className="muted">Unassigned</span>
+                      )}
+                    </td>
+                    <td>
+                      <StatusBadge status={request.status} />
+                    </td>
+                    <td>
+                      <AdminRequestActions id={request.id} status={request.status} />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <Pagination
+            page={page}
+            totalPages={pages}
+            total={total}
+            hrefFor={(nextPage) => requestsHref(status, nextPage)}
+          />
+        </>
       )}
     </section>
   );
