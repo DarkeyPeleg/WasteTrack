@@ -3,6 +3,7 @@ import { getSession, requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { adminUpdateSchema } from "@/lib/validations";
 import { canTransition } from "@/lib/status";
+import { logActivity } from "@/lib/activity";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -72,6 +73,14 @@ export async function PATCH(request: NextRequest, { params }: Params) {
       },
       include: requestInclude,
     });
+
+    await logActivity({
+      requestId: updated.id,
+      residentId: updated.residentId,
+      type: "ASSIGNED",
+      message: `${collector.name} assigned to request — ${updated.address}`,
+    });
+
     return NextResponse.json({ request: updated });
   }
 
@@ -94,6 +103,23 @@ export async function PATCH(request: NextRequest, { params }: Params) {
       data: { status },
       include: requestInclude,
     });
+
+    const labels: Record<string, string> = {
+      IN_PROGRESS: `Collection in progress — ${updated.address}`,
+      COLLECTED: `Waste collected — ${updated.address}`,
+      CANCELLED: `Request cancelled — ${updated.address}`,
+      ASSIGNED: `Request assigned — ${updated.address}`,
+    };
+
+    if (status !== existing.status && labels[status]) {
+      await logActivity({
+        requestId: updated.id,
+        residentId: updated.residentId,
+        type: status,
+        message: labels[status],
+      });
+    }
+
     return NextResponse.json({ request: updated });
   }
 

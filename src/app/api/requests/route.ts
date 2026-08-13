@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getSession, requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { createRequestSchema } from "@/lib/validations";
+import { logActivity } from "@/lib/activity";
 
 export async function GET() {
   const session = await getSession();
@@ -45,6 +46,13 @@ export async function POST(request: Request) {
         description: parsed.data.description,
         status: "PENDING",
       },
+    });
+
+    await logActivity({
+      requestId: created.id,
+      residentId: created.residentId,
+      type: "SUBMITTED",
+      message: `Collection request submitted — ${created.address}`,
     });
 
     return NextResponse.json({ request: created }, { status: 201 });

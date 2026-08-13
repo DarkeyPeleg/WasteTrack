@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
+import { CancelRequestButton } from "@/components/cancel-request-button";
 import { CollectorCard } from "@/components/collector-card";
 import { StatusBadge } from "@/components/status-badge";
 import { getSession } from "@/lib/auth";
@@ -62,6 +63,16 @@ export default async function ResidentRequestDetailPage({ params }: Props) {
           <CollectorCard collector={request.collector} />
         </div>
       </div>
+
+      {request.status !== "COLLECTED" && request.status !== "CANCELLED" && (
+        <div className="panel" style={{ marginTop: "1rem" }}>
+          <h2>Cancel this request</h2>
+          <p className="muted">Stop this collection if you no longer need it.</p>
+          <div style={{ marginTop: "0.75rem" }}>
+            <CancelRequestButton id={request.id} status={request.status} />
+          </div>
+        </div>
+      )}
     </section>
   );
 }

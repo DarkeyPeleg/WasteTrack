@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { ActivityList } from "@/components/activity-list";
 import { StatusBadge } from "@/components/status-badge";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -36,6 +37,11 @@ export default async function AdminDashboardPage() {
       resident: { select: { name: true, email: true } },
       collector: true,
     },
+  });
+
+  const activities = await prisma.activity.findMany({
+    orderBy: { createdAt: "desc" },
+    take: 8,
   });
 
   return (
@@ -79,39 +85,54 @@ export default async function AdminDashboardPage() {
         </Link>
       </div>
 
-      <div className="panel">
-        <h2 style={{ marginTop: 0 }}>Latest requests</h2>
-        {recent.length === 0 ? (
-          <p className="empty">No collection requests yet.</p>
-        ) : (
-          <div className="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Resident</th>
-                  <th>Address</th>
-                  <th>Collector</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {recent.map((request) => (
-                  <tr key={request.id}>
-                    <td>
-                      {request.resident.name}
-                      <div className="muted">{request.resident.email}</div>
-                    </td>
-                    <td>{request.address}</td>
-                    <td>{request.collector?.name ?? "Unassigned"}</td>
-                    <td>
-                      <StatusBadge status={request.status} />
-                    </td>
+      <div className="dashboard-split">
+        <div className="panel">
+          <h2>Latest requests</h2>
+          {recent.length === 0 ? (
+            <p className="empty">No collection requests yet.</p>
+          ) : (
+            <div className="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Resident</th>
+                    <th>Address</th>
+                    <th>Collector</th>
+                    <th>Status</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+                </thead>
+                <tbody>
+                  {recent.map((request) => (
+                    <tr key={request.id}>
+                      <td>
+                        {request.resident.name}
+                        <div className="muted">{request.resident.email}</div>
+                      </td>
+                      <td>{request.address}</td>
+                      <td>{request.collector?.name ?? "Unassigned"}</td>
+                      <td>
+                        <StatusBadge status={request.status} />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+
+        <div className="panel">
+          <h2>Recent activity</h2>
+          <ActivityList
+            items={activities.map((item) => ({
+              id: item.id,
+              type: item.type,
+              message: item.message,
+              createdAt: item.createdAt,
+              href: `/admin/requests/${item.requestId}`,
+            }))}
+          />
+        </div>
       </div>
     </section>
   );

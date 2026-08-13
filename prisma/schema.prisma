@@ -16,6 +16,7 @@ model User {
   role         String              @default("RESIDENT")
   createdAt    DateTime            @default(now())
   requests     CollectionRequest[]
+  activities   Activity[]
 }
 
 model Collector {
@@ -43,4 +44,16 @@ model CollectionRequest {
   collectorName String?
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
+  activities    Activity[]
+}
+
+model Activity {
+  id         String            @id @default(cuid())
+  requestId  String
+  request    CollectionRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  residentId String
+  resident   User              @relation(fields: [residentId], references: [id], onDelete: Cascade)
+  type       String
+  message    String
+  createdAt  DateTime          @default(now())
 }

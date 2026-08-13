@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { ActivityList } from "@/components/activity-list";
 import { StatusBadge } from "@/components/status-badge";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -13,6 +14,12 @@ export default async function ResidentDashboardPage() {
     where: { residentId: session.id },
     include: { collector: true },
     orderBy: { createdAt: "desc" },
+  });
+
+  const activities = await prisma.activity.findMany({
+    where: { residentId: session.id },
+    orderBy: { createdAt: "desc" },
+    take: 8,
   });
 
   const counts = {
@@ -55,42 +62,57 @@ export default async function ResidentDashboardPage() {
         </Link>
       </div>
 
-      <div className="panel">
-        <h2 style={{ marginTop: 0 }}>Recent requests</h2>
-        {requests.length === 0 ? (
-          <p className="empty">No requests yet. Submit your first collection request.</p>
-        ) : (
-          <div className="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Address</th>
-                  <th>Type</th>
-                  <th>Collector</th>
-                  <th>Status</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                {requests.slice(0, 5).map((request) => (
-                  <tr key={request.id}>
-                    <td>{request.address}</td>
-                    <td>{request.wasteType}</td>
-                    <td>{request.collector?.name ?? "Not assigned"}</td>
-                    <td>
-                      <StatusBadge status={request.status} />
-                    </td>
-                    <td>
-                      <Link href={`/requests/${request.id}`} className="btn btn-secondary btn-sm">
-                        View
-                      </Link>
-                    </td>
+      <div className="dashboard-split">
+        <div className="panel">
+          <h2>Recent requests</h2>
+          {requests.length === 0 ? (
+            <p className="empty">No requests yet. Submit your first collection request.</p>
+          ) : (
+            <div className="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Address</th>
+                    <th>Type</th>
+                    <th>Collector</th>
+                    <th>Status</th>
+                    <th></th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+                </thead>
+                <tbody>
+                  {requests.slice(0, 5).map((request) => (
+                    <tr key={request.id}>
+                      <td>{request.address}</td>
+                      <td>{request.wasteType}</td>
+                      <td>{request.collector?.name ?? "Not assigned"}</td>
+                      <td>
+                        <StatusBadge status={request.status} />
+                      </td>
+                      <td>
+                        <Link href={`/requests/${request.id}`} className="btn btn-secondary btn-sm">
+                          View
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+
+        <div className="panel">
+          <h2>Recent activity</h2>
+          <ActivityList
+            items={activities.map((item) => ({
+              id: item.id,
+              type: item.type,
+              message: item.message,
+              createdAt: item.createdAt,
+              href: `/requests/${item.requestId}`,
+            }))}
+          />
+        </div>
       </div>
     </section>
   );

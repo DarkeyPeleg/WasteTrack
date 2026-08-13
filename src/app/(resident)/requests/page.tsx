@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { CancelRequestButton } from "@/components/cancel-request-button";
 import { StatusBadge } from "@/components/status-badge";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -60,9 +61,12 @@ export default async function RequestsPage() {
                     <StatusBadge status={request.status} />
                   </td>
                   <td>
-                    <Link href={`/requests/${request.id}`} className="btn btn-secondary btn-sm">
-                      View
-                    </Link>
+                    <div className="btn-row">
+                      <Link href={`/requests/${request.id}`} className="btn btn-secondary btn-sm">
+                        View
+                      </Link>
+                      <CancelRequestButton id={request.id} status={request.status} />
+                    </div>
                   </td>
                 </tr>
               ))}

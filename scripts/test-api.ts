@@ -85,6 +85,32 @@ async function main() {
     requestId = (data as { request: { id: string } }).request.id;
   }
 
+  console.log("2b) Resident can cancel their own request");
+  {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const created = await api(resident, "/api/requests", {
+      method: "POST",
+      body: JSON.stringify({
+        address: "7 Ring Road, Accra",
+        wasteType: "Organic",
+        preferredDate: tomorrow.toISOString().slice(0, 10),
+        description: "To be cancelled",
+      }),
+    });
+    assert(created.res.status === 201, "cancel-test create expected 201");
+    const cancelId = (created.data as { request: { id: string } }).request.id;
+    const { res, data } = await api(resident, `/api/requests/${cancelId}`, {
+      method: "PATCH",
+      body: JSON.stringify({ status: "CANCELLED" }),
+    });
+    assert(res.status === 200, `resident cancel expected 200 got ${res.status}: ${JSON.stringify(data)}`);
+    assert(
+      (data as { request: { status: string } }).request.status === "CANCELLED",
+      "status should be CANCELLED",
+    );
+  }
+
   console.log("3) Validation rejects past date");
   {
     const { res } = await api(resident, "/api/requests", {
