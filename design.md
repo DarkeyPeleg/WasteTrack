@@ -277,8 +277,8 @@ Server enforces transition rules and that assignment sets status to `ASSIGNED`.
 | Item | Design choice |
 |---|---|
 | Host | Vercel |
-| Database | Neon Postgres (`DATABASE_URL`) |
-| Secrets | `JWT_SECRET`, `DATABASE_URL` in Vercel env — never committed |
+| Database | Neon Postgres (`DATABASE_URL` pooled + `DIRECT_URL` for migrations) |
+| Secrets | `JWT_SECRET`, `DATABASE_URL`, `DIRECT_URL` in Vercel env — never committed |
 | Seed | Admin + resident test users documented for examiner |
 | Docs | README acknowledges Next.js, Prisma, Neon, Zod, bcrypt/jose, Tailwind, Vercel |
 

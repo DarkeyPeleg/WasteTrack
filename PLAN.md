@@ -6,7 +6,7 @@
 |---|---|
 | Framework | Next.js (App Router) + TypeScript + Tailwind |
 | Auth | Basic custom JWT in httpOnly cookie + bcrypt (`NFR-01`) — no Auth.js/NextAuth |
-| Data | SQLite via Prisma (local MVP; switch `DATABASE_URL` to Postgres/Neon for Vercel) |
+| Data | Neon Postgres + Prisma |
 | Hosting | Vercel |
 | Forms / mutations | HTML/React forms → `app/api/*` Route Handlers + Zod body checks |
 
